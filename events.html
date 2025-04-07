@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanupCrew - All Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white text-gray-800 shadow-sm fixed w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-leaf text-emerald-500 text-2xl"></i>
+                    <span class="text-xl font-bold">CleanupCrew</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html#home" class="hover:text-sky-600 font-medium">Home</a>
+                    <a href="./events.html" class="text-sky-600 font-medium">Events</a>
+                    <a href="./map.html" class="hover:text-sky-600 font-medium">Map</a>
+                    <a href="./auth.html" class="hover:text-sky-600 font-medium">Register</a>
+                    <a href="./chat.html" class="hover:text-sky-600 font-medium flex items-center">
+                        <i class="far fa-comment-dots mr-1"></i>
+                        Chat
+                    </a>
+                </div>
+                <a href="./auth.html" class="bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-6 py-2 rounded-full hover:from-emerald-500 hover:to-sky-500 transition-all duration-300 font-medium">
+                    Join Now
+                </a>
+                <!-- Mobile menu button -->
+                <button class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+            <!-- Mobile menu -->
+            <div class="hidden md:hidden mt-4 pb-4">
+                <a href="index.html#home" class="block py-2 hover:text-sky-600">Home</a>
+                <a href="#events" class="block py-2 text-sky-600">Events</a>
+                <a href="#map" class="block py-2 hover:text-sky-600">Map</a>
+                <a href="./auth.html" class="block py-2 hover:text-sky-600">Register</a>
+                <a href="#chat" class="block py-2 hover:text-sky-600 flex items-center">
+                    <i class="far fa-comment-dots mr-1"></i>
+                    Chat
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="pt-32 pb-20 bg-gradient-to-r from-sky-500 to-emerald-500 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Cleanup Events</h1>
+            <p class="text-xl text-white/90 max-w-2xl mx-auto">Browse cleanup events in your area and join our mission for a cleaner environment.</p>
+        </div>
+    </header>
+
+    <!-- Map Section -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8">Event Locations</h2>
+            <div class="max-w-5xl mx-auto">
+                <div id="map" class="shadow-lg"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Sections -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="px-6 py-2 rounded-full bg-sky-500 text-white font-medium hover:bg-sky-600 transition-colors" onclick="filterEvents('all')">All Events</button>
+                <button class="px-6 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('lpu')">Near LPU</button>
+                <button class="px-6 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('jalandhar')">Jalandhar</button>
+                <button class="px-6 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('phagwara')">Phagwara</button>
+                <button class="px-6 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('ludhiana')">Ludhiana</button>
+                <button class="px-6 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('outside')">Outside Punjab</button>
+            </div>
+
+            <!-- Events Grid -->
+            <div id="events-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Events will be dynamically populated here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">&copy; 2025 CleanupCrew. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([31.2460, 75.7015], 8); // Centered on LPU
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add markers for each event
+        eventLocations.forEach(location => {
+            const marker = L.marker([location.position.lat, location.position.lng])
+                .addTo(map)
+                .bindPopup(`
+                    <div class="p-2">
+                        <h3 class="font-bold">${location.title}</h3>
+                        <p class="text-gray-600"><i class="far fa-calendar mr-2"></i>${location.date}</p>
+                        <p class="text-gray-600"><i class="fas fa-users mr-2"></i>${location.volunteers}</p>
+                        <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>${location.address}</p>
+                    </div>
+                `);
+        });
+
+        // Filter events function
+        function filterEvents(category) {
+            const filteredEvents = category === 'all' 
+                ? events 
+                : events.filter(event => event.category === category);
+            
+            displayEvents(filteredEvents);
+
+            // Update active button styles
+            document.querySelectorAll('button').forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(category)) {
+                    btn.classList.remove('bg-white', 'text-gray-700');
+                    btn.classList.add('bg-sky-500', 'text-white');
+                } else {
+                    btn.classList.remove('bg-sky-500', 'text-white');
+                    btn.classList.add('bg-white', 'text-gray-700');
+                }
+            });
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            filterEvents('all');
+        });
+    </script>
+
+    <!-- Botpress Webchat Button -->
+    <!-- Botpress Webchat Script -->
+</body>
+</html> 

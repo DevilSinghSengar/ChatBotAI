@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with CleanupCrew</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+        }
+        .hover-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+        }
+        .message-appear {
+            animation: messageAppear 0.3s ease-out forwards;
+        }
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .webpage-preview {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .webpage-preview iframe {
+            width: 100%;
+            height: 250px;
+            border: none;
+        }
+        .loading-dots {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 13px;
+        }
+        .loading-dots div {
+            position: absolute;
+            top: 0;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+        .loading-dots div:nth-child(1) {
+            left: 8px;
+            animation: loading1 0.6s infinite;
+        }
+        .loading-dots div:nth-child(2) {
+            left: 8px;
+            animation: loading2 0.6s infinite;
+        }
+        .loading-dots div:nth-child(3) {
+            left: 32px;
+            animation: loading2 0.6s infinite;
+        }
+        .loading-dots div:nth-child(4) {
+            left: 56px;
+            animation: loading3 0.6s infinite;
+        }
+        @keyframes loading1 {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        @keyframes loading3 {
+            0% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+        @keyframes loading2 {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(24px, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="bg-white text-gray-800 shadow-sm">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="./index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-leaf text-emerald-500 text-2xl"></i>
+                    <span class="text-xl font-bold">CleanupCrew</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="./index.html" class="text-gray-600 hover:text-sky-600 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Chat Interface -->
+    <div class="flex-1 flex">
+        <!-- Sidebar -->
+        <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
+            <!-- Search -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="relative">
+                    <input type="text" 
+                           placeholder="Search conversations" 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- Recent Chats -->
+            <div class="flex-1 overflow-y-auto">
+                <div class="p-4">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Recent Conversations</h3>
+                    <!-- Active Chat -->
+                    <div class="bg-gradient-to-r from-sky-50 to-emerald-50 p-3 rounded-lg mb-2 cursor-pointer">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                                <i class="fas fa-robot text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-gray-900 truncate">CleanupCrew Assistant</h4>
+                                <p class="text-sm text-gray-500 truncate">How can I assist you today?</p>
+                            </div>
+                            <span class="text-sky-500 text-xs">Now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-gray-200 bg-white">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold">Guest User</h4>
+                        <p class="text-xs text-gray-500">Online</p>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Chat Header -->
+            <div class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                            <i class="fas fa-robot text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">CleanupCrew Assistant</h3>
+                            <p class="text-sm text-gray-500">Always here to help</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6" id="chat-messages">
+                <!-- Welcome Message -->
+                <div class="flex items-start space-x-3 message-appear">
+                    <div class="w-8 h-8 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                        <i class="fas fa-robot text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1 max-w-2xl">
+                        <div class="bg-white rounded-lg rounded-tl-none p-4 shadow-sm">
+                            <p class="text-gray-700">👋 Welcome to CleanupCrew Chat! I'm here to help you with:</p>
+                            <ul class="mt-2 space-y-1 text-gray-700">
+                                <li>• Finding cleanup events in your area</li>
+                                <li>• Registration process</li>
+                                <li>• General inquiries</li>
+                                <li>• Environmental information</li>
+                                <li>• Real-time weather data</li>
+                                <li>• Latest environmental news</li>
+                                <li>• Environmental statistics and facts</li>
+                            </ul>
+                            <p class="mt-2 text-gray-700">I can access the internet to find information for you. Try asking me about:</p>
+                            <ul class="mt-2 space-y-1 text-gray-700">
+                                <li>• "What's the weather in Jalandhar?"</li>
+                                <li>• "Show me environmental news"</li>
+                                <li>• "Find information about plastic pollution"</li>
+                                <li>• "Environmental statistics"</li>
+                            </ul>
+                            <p class="mt-2 text-gray-700">I'm powered by AI to provide intelligent responses. Try asking me:</p>
+                            <ul class="mt-2 space-y-1 text-gray-700">
+                                <li>• "Explain the impact of climate change"</li>
+                                <li>• "Tell me about recycling best practices"</li>
+                                <li>• "How does volunteering help the environment?"</li>
+                            </ul>
+                            <p class="mt-2 text-gray-700">How can I assist you today?</p>
+                        </div>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button class="quick-action px-4 py-2 bg-sky-50 text-sky-600 rounded-full text-sm hover:bg-sky-100 transition-colors font-medium">
+                                Find Events Near Me
+                            </button>
+                            <button class="quick-action px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-sm hover:bg-emerald-100 transition-colors font-medium">
+                                How to Register
+                            </button>
+                            <button class="quick-action px-4 py-2 bg-orange-50 text-orange-600 rounded-full text-sm hover:bg-orange-100 transition-colors font-medium">
+                                Environmental Tips
+                            </button>
+                            <button class="quick-action px-4 py-2 bg-purple-50 text-purple-600 rounded-full text-sm hover:bg-purple-100 transition-colors font-medium">
+                                Environmental News
+                            </button>
+                            <button class="quick-action px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm hover:bg-blue-100 transition-colors font-medium">
+                                Weather Information
+                            </button>
+                            <button class="quick-action px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm hover:bg-indigo-100 transition-colors font-medium">
+                                Ask AI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="bg-white border-t border-gray-200 p-4">
+                <form id="chat-form" class="flex items-end space-x-4">
+                    <div class="flex-1 relative">
+                        <input type="text" 
+                               id="chat-input"
+                               placeholder="Type your message..." 
+                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent pr-20">
+                        <div class="absolute right-3 bottom-3 flex space-x-2">
+                            <button type="button" class="text-gray-400 hover:text-sky-500 transition-colors">
+                                <i class="far fa-smile"></i>
+                            </button>
+                            <button type="button" class="text-gray-400 hover:text-sky-500 transition-colors">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-gradient-to-r from-sky-500 to-emerald-500 text-white p-3 rounded-full hover:from-emerald-500 hover:to-sky-500 transition-all duration-300">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            const quickActions = document.querySelectorAll('.quick-action');
+
+            // Show loading indicator
+            function showLoading() {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'flex items-start space-x-3 message-appear';
+                loadingDiv.innerHTML = `
+                    <div class="w-8 h-8 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                        <i class="fas fa-robot text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1 max-w-2xl">
+                        <div class="bg-white rounded-lg rounded-tl-none p-4 shadow-sm">
+                            <div class="loading-dots">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(loadingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return loadingDiv;
+            }
+
+            // Remove loading indicator
+            function removeLoading(loadingDiv) {
+                if (loadingDiv && loadingDiv.parentNode) {
+                    loadingDiv.parentNode.removeChild(loadingDiv);
+                }
+            }
+
+            function showMessage(message, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${type === 'user' ? 'justify-end' : 'items-start space-x-3'} message-appear`;
+                
+                if (type === 'user') {
+                    messageDiv.innerHTML = `
+                        <div class="max-w-2xl">
+                            <div class="bg-gradient-to-r from-sky-500 to-emerald-500 text-white rounded-lg rounded-tr-none p-4 shadow-sm">
+                                ${message.text}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="w-8 h-8 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                        <div class="flex-1 max-w-2xl">
+                            <div class="bg-white rounded-lg rounded-tl-none p-4 shadow-sm">
+                                ${message.text}
+                            </div>
+                            ${message.quickReplies ? `
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    ${message.quickReplies.map(reply => `
+                                        <button class="quick-reply px-4 py-2 bg-sky-50 text-sky-600 rounded-full text-sm hover:bg-sky-100 transition-colors font-medium">
+                                            ${reply}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            ${message.webpage ? `
+                                <div class="webpage-preview">
+                                    <iframe src="${message.webpage}" title="Webpage Preview"></iframe>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                if (type === 'bot' && message.quickReplies) {
+                    messageDiv.querySelectorAll('.quick-reply').forEach(button => {
+                        button.addEventListener('click', () => {
+                            const reply = button.textContent.trim();
+                            showMessage({ text: reply }, 'user');
+                            handleUserMessage(reply);
+                        });
+                    });
+                }
+            }
+
+            function formatDate(dateStr) {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(dateStr).toLocaleDateString('en-US', options);
+            }
+
+            // Function to fetch data from external APIs
+            async function fetchExternalData(query) {
+                try {
+                    // For demonstration purposes, we'll use some mock APIs
+                    // In a real application, you would use actual API endpoints
+                    
+                    // Weather API (mock)
+                    if (query.includes('weather') || query.includes('temperature')) {
+                        const city = query.match(/in\s+([a-zA-Z\s]+)/i) ? 
+                            query.match(/in\s+([a-zA-Z\s]+)/i)[1].trim() : 'Jalandhar';
+                        
+                        // Mock weather data
+                        const weatherData = {
+                            city: city,
+                            temperature: Math.floor(Math.random() * 15) + 20, // Random temp between 20-35°C
+                            condition: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain'][Math.floor(Math.random() * 4)],
+                            humidity: Math.floor(Math.random() * 40) + 40, // Random humidity between 40-80%
+                            windSpeed: Math.floor(Math.random() * 10) + 5 // Random wind speed between 5-15 km/h
+                        };
+                        
+                        return {
+                            type: 'weather',
+                            data: weatherData
+                        };
+                    }
+                    
+                    // Environmental news API (mock)
+                    if (query.includes('news') || query.includes('latest') || query.includes('environmental')) {
+                        // Mock news data
+                        const newsData = [
+                            {
+                                title: "New Study Shows Impact of Plastic Pollution on Marine Life",
+                                source: "Environmental Science Journal",
+                                date: "2024-04-05",
+                                summary: "A recent study has revealed alarming statistics about plastic pollution in oceans, affecting over 700 marine species."
+                            },
+                            {
+                                title: "Government Announces New Recycling Initiative",
+                                source: "Green Policy News",
+                                date: "2024-04-03",
+                                summary: "The government has launched a new initiative to increase recycling rates by 50% over the next five years."
+                            },
+                            {
+                                title: "Community Cleanup Efforts Show Promising Results",
+                                source: "Local Environmental Report",
+                                date: "2024-04-01",
+                                summary: "Recent community cleanup efforts have resulted in a 30% reduction in litter in public parks and waterways."
+                            }
+                        ];
+                        
+                        return {
+                            type: 'news',
+                            data: newsData
+                        };
+                    }
+                    
+                    // Environmental tips API (mock)
+                    if (query.includes('tip') || query.includes('advice') || query.includes('how to')) {
+                        // Mock tips data
+                        const tipsData = [
+                            "Use reusable bags when shopping to reduce plastic waste.",
+                            "Start a compost bin for organic waste to reduce landfill contributions.",
+                            "Participate in local cleanup events to help maintain community spaces.",
+                            "Reduce water usage by fixing leaks and using water-efficient fixtures.",
+                            "Choose products with minimal packaging to reduce waste."
+                        ];
+                        
+                        return {
+                            type: 'tips',
+                            data: tipsData
+                        };
+                    }
+                    
+                    // Web search (mock)
+                    if (query.includes('search') || query.includes('find information about') || query.includes('look up') || query.includes('web') || query.includes('internet')) {
+                        const searchTerm = query.replace(/search|find information about|look up|web|internet/i, '').trim();
+                        
+                        // Mock search results
+                        const searchResults = [
+                            {
+                                title: `Information about ${searchTerm}`,
+                                url: `https://example.com/search?q=${encodeURIComponent(searchTerm)}`,
+                                snippet: `This is a mock search result for ${searchTerm}. In a real application, this would be fetched from a search API.`
+                            },
+                            {
+                                title: `${searchTerm} - Environmental Impact`,
+                                url: `https://example.com/environment/${encodeURIComponent(searchTerm)}`,
+                                snippet: `Learn about the environmental impact of ${searchTerm} and how it affects our ecosystem.`
+                            }
+                        ];
+                        
+                        return {
+                            type: 'search',
+                            data: searchResults
+                        };
+                    }
+                    
+                    // Environmental data API (mock)
+                    if (query.includes('data') || query.includes('statistics') || query.includes('facts')) {
+                        // Mock environmental data
+                        const environmentalData = {
+                            plasticWaste: {
+                                global: "8 million tons of plastic enter oceans annually",
+                                recycling: "Only 9% of plastic waste is recycled globally",
+                                decomposition: "Plastic takes 400+ years to decompose"
+                            },
+                            deforestation: {
+                                rate: "10 million hectares of forest are lost annually",
+                                impact: "Forests absorb 2.6 billion tons of CO2 each year",
+                                solution: "Reforestation could remove 25% of CO2 from atmosphere"
+                            },
+                            airQuality: {
+                                cities: "91% of people live in areas exceeding WHO air quality guidelines",
+                                impact: "Air pollution causes 7 million premature deaths annually",
+                                improvement: "Clean air policies could save 1 million lives by 2030"
+                            }
+                        };
+                        
+                        return {
+                            type: 'environmentalData',
+                            data: environmentalData
+                        };
+                    }
+                    
+                    // Webpage preview (mock)
+                    if (query.includes('show me') || query.includes('display') || query.includes('open') || query.includes('visit')) {
+                        const webpage = query.match(/(?:show me|display|open|visit)\s+(.+)/i) ? 
+                            query.match(/(?:show me|display|open|visit)\s+(.+)/i)[1].trim() : 'environmental protection';
+                        
+                        // Mock webpage URL
+                        const webpageUrl = `https://example.com/${encodeURIComponent(webpage.replace(/\s+/g, '-'))}`;
+                        
+                        return {
+                            type: 'webpage',
+                            data: {
+                                url: webpageUrl,
+                                title: `${webpage.charAt(0).toUpperCase() + webpage.slice(1)} - Environmental Information`,
+                                description: `This is a mock webpage about ${webpage}. In a real application, this would display actual web content.`
+                            }
+                        };
+                    }
+                    
+                    // Default response for unrecognized queries
+                    return {
+                        type: 'unknown',
+                        data: null
+                    };
+                } catch (error) {
+                    console.error('Error fetching external data:', error);
+                    return {
+                        type: 'error',
+                        data: error.message
+                    };
+                }
+            }
+
+            // Function to get AI response
+            async function getAIResponse(query) {
+                try {
+                    // In a real application, this would call an actual AI API like OpenAI's ChatGPT
+                    // For demonstration purposes, we'll use a mock response
+                    
+                    // Simulate API call delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Mock AI responses based on query type
+                    if (query.includes('environment') || query.includes('climate') || query.includes('pollution')) {
+                        return {
+                            text: `
+                                <div class="space-y-3">
+                                    <p class="text-gray-700">Based on my analysis of environmental data, here's what I can tell you:</p>
+                                    <p class="text-gray-700">Environmental issues are complex and interconnected. Climate change, pollution, and habitat destruction are major concerns that require global cooperation to address effectively.</p>
+                                    <p class="text-gray-700">Local initiatives like community cleanup events play a crucial role in raising awareness and taking action. By participating in these events, you're contributing to both local environmental health and global environmental consciousness.</p>
+                                    <p class="text-gray-700">Would you like more specific information about any particular environmental issue?</p>
+                                </div>
+                            `,
+                            quickReplies: ['Tell me about climate change', 'How does pollution affect health?', 'What can I do to help?']
+                        };
+                    } else if (query.includes('volunteer') || query.includes('help') || query.includes('participate')) {
+                        return {
+                            text: `
+                                <div class="space-y-3">
+                                    <p class="text-gray-700">Volunteering for environmental causes is incredibly rewarding! Here's what you should know:</p>
+                                    <p class="text-gray-700">Our cleanup events are designed to be accessible to everyone, regardless of experience level. We provide all necessary equipment and training on-site.</p>
+                                    <p class="text-gray-700">The impact of even a few hours of volunteering can be significant. A single cleanup event can remove hundreds of pounds of waste from natural areas, protecting wildlife and improving water quality.</p>
+                                    <p class="text-gray-700">Many of our volunteers find that participating in these events leads to lasting changes in their daily habits, making them more environmentally conscious.</p>
+                                    <p class="text-gray-700">Would you like to know about upcoming events or how to get more involved?</p>
+                                </div>
+                            `,
+                            quickReplies: ['Show me upcoming events', 'What should I bring?', 'How do I register?']
+                        };
+                    } else if (query.includes('recycling') || query.includes('waste') || query.includes('plastic')) {
+                        return {
+                            text: `
+                                <div class="space-y-3">
+                                    <p class="text-gray-700">Recycling and waste management are critical environmental issues. Here's what I know:</p>
+                                    <p class="text-gray-700">Proper recycling can significantly reduce the amount of waste sent to landfills and decrease the need for extracting new raw materials, which helps conserve natural resources.</p>
+                                    <p class="text-gray-700">Plastic pollution is particularly concerning because it doesn't biodegrade. Instead, it breaks down into smaller pieces called microplastics that can harm marine life and potentially enter the food chain.</p>
+                                    <p class="text-gray-700">The most effective approach to waste management is the "reduce, reuse, recycle" hierarchy. Reducing consumption and reusing items should be prioritized before recycling.</p>
+                                    <p class="text-gray-700">Would you like specific tips on how to improve your recycling habits?</p>
+                                </div>
+                            `,
+                            quickReplies: ['Recycling tips', 'How to reduce plastic use', 'What can be recycled?']
+                        };
+                    } else {
+                        // Generic AI response for other queries
+                        return {
+                            text: `
+                                <div class="space-y-3">
+                                    <p class="text-gray-700">I've analyzed your question and here's what I can tell you:</p>
+                                    <p class="text-gray-700">Environmental awareness and action are more important than ever. Every small step we take collectively can lead to significant positive changes for our planet.</p>
+                                    <p class="text-gray-700">CleanupCrew is dedicated to making a difference through community engagement and environmental education. Our events not only help clean up natural areas but also raise awareness about environmental issues.</p>
+                                    <p class="text-gray-700">Is there a specific aspect of environmental protection you're interested in learning more about?</p>
+                                </div>
+                            `,
+                            quickReplies: ['Environmental tips', 'Upcoming events', 'How to get involved']
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error getting AI response:', error);
+                    return {
+                        text: "I'm having trouble processing your request with AI. Let me try a different approach.",
+                        quickReplies: ['Try again', 'Find Events Near Me', 'Environmental Tips']
+                    };
+                }
+            }
+
+            async function handleUserMessage(message) {
+                const lowerMessage = message.toLowerCase();
+                const loadingDiv = showLoading();
+                
+                try {
+                    // Check if the message is asking for external information
+                    const externalDataTypes = ['weather', 'news', 'tip', 'search', 'environmental', 'web', 'internet', 'find', 'look up', 'information about', 'data', 'statistics', 'facts', 'show me', 'display', 'open', 'visit'];
+                    const isExternalQuery = externalDataTypes.some(type => lowerMessage.includes(type));
+                    
+                    // Check if the message is asking for AI analysis
+                    const aiKeywords = ['explain', 'analyze', 'tell me about', 'what is', 'how does', 'why is', 'compare', 'difference between', 'ai', 'chatgpt', 'artificial intelligence'];
+                    const isAIQuery = aiKeywords.some(keyword => lowerMessage.includes(keyword));
+                    
+                    let response;
+                    
+                    if (isAIQuery) {
+                        // Get AI response
+                        response = await getAIResponse(lowerMessage);
+                    } else if (isExternalQuery) {
+                        // Fetch data from external sources
+                        const externalData = await fetchExternalData(lowerMessage);
+                        
+                        // Process the external data based on its type
+                        switch (externalData.type) {
+                            case 'weather':
+                                const weather = externalData.data;
+                                response = {
+                                    text: `
+                                        <div class="space-y-3">
+                                            <h3 class="font-bold text-lg">Weather in ${weather.city}</h3>
+                                            <div class="flex items-center">
+                                                <div class="text-4xl font-bold text-sky-600 mr-4">${weather.temperature}°C</div>
+                                                <div>
+                                                    <p class="text-gray-700 font-medium">${weather.condition}</p>
+                                                    <p class="text-sm text-gray-500">Humidity: ${weather.humidity}% | Wind: ${weather.windSpeed} km/h</p>
+                                                </div>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2">This weather data is for demonstration purposes only.</p>
+                                        </div>
+                                    `,
+                                    quickReplies: ['Show events in this area', 'Environmental tips', 'Back to events']
+                                };
+                                break;
+                                
+                            case 'news':
+                                const news = externalData.data;
+                                let newsHtml = '<div class="space-y-4"><h3 class="font-bold text-lg">Latest Environmental News</h3>';
+                                
+                                news.forEach(item => {
+                                    newsHtml += `
+                                        <div class="border-t border-gray-200 pt-3">
+                                            <h4 class="font-semibold text-gray-800">${item.title}</h4>
+                                            <p class="text-sm text-gray-600 mt-1">${item.summary}</p>
+                                            <div class="flex justify-between items-center mt-2">
+                                                <span class="text-xs text-gray-500">${item.source} • ${new Date(item.date).toLocaleDateString()}</span>
+                                                <a href="#" class="text-xs text-sky-600 hover:text-sky-800">Read more</a>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                
+                                newsHtml += '</div>';
+                                
+                                response = {
+                                    text: newsHtml,
+                                    quickReplies: ['More news', 'Environmental tips', 'Back to events']
+                                };
+                                break;
+                                
+                            case 'tips':
+                                const tips = externalData.data;
+                                let tipsHtml = '<div class="space-y-3"><h3 class="font-bold text-lg">Environmental Tips</h3><ul class="list-disc pl-5 space-y-2">';
+                                
+                                tips.forEach(tip => {
+                                    tipsHtml += `<li class="text-gray-700">${tip}</li>`;
+                                });
+                                
+                                tipsHtml += '</ul></div>';
+                                
+                                response = {
+                                    text: tipsHtml,
+                                    quickReplies: ['More tips', 'Find events', 'Back to events']
+                                };
+                                break;
+                                
+                            case 'search':
+                                const searchResults = externalData.data;
+                                let searchHtml = '<div class="space-y-3"><h3 class="font-bold text-lg">Search Results</h3>';
+                                
+                                searchResults.forEach(result => {
+                                    searchHtml += `
+                                        <div class="border-t border-gray-200 pt-3">
+                                            <h4 class="font-semibold text-gray-800">${result.title}</h4>
+                                            <p class="text-sm text-gray-600 mt-1">${result.snippet}</p>
+                                            <a href="${result.url}" target="_blank" class="text-xs text-sky-600 hover:text-sky-800 mt-1 inline-block">Visit website</a>
+                                        </div>
+                                    `;
+                                });
+                                
+                                searchHtml += '</div>';
+                                
+                                response = {
+                                    text: searchHtml,
+                                    quickReplies: ['Refine search', 'Back to events', 'Environmental tips']
+                                };
+                                break;
+                                
+                            case 'environmentalData':
+                                const envData = externalData.data;
+                                let dataHtml = '<div class="space-y-4"><h3 class="font-bold text-lg">Environmental Data</h3>';
+                                
+                                // Plastic waste data
+                                dataHtml += `
+                                    <div class="border-t border-gray-200 pt-3">
+                                        <h4 class="font-semibold text-gray-800">Plastic Waste</h4>
+                                        <ul class="list-disc pl-5 space-y-1 mt-2">
+                                            <li class="text-sm text-gray-700">${envData.plasticWaste.global}</li>
+                                            <li class="text-sm text-gray-700">${envData.plasticWaste.recycling}</li>
+                                            <li class="text-sm text-gray-700">${envData.plasticWaste.decomposition}</li>
+                                        </ul>
+                                    </div>
+                                `;
+                                
+                                // Deforestation data
+                                dataHtml += `
+                                    <div class="border-t border-gray-200 pt-3">
+                                        <h4 class="font-semibold text-gray-800">Deforestation</h4>
+                                        <ul class="list-disc pl-5 space-y-1 mt-2">
+                                            <li class="text-sm text-gray-700">${envData.deforestation.rate}</li>
+                                            <li class="text-sm text-gray-700">${envData.deforestation.impact}</li>
+                                            <li class="text-sm text-gray-700">${envData.deforestation.solution}</li>
+                                        </ul>
+                                    </div>
+                                `;
+                                
+                                // Air quality data
+                                dataHtml += `
+                                    <div class="border-t border-gray-200 pt-3">
+                                        <h4 class="font-semibold text-gray-800">Air Quality</h4>
+                                        <ul class="list-disc pl-5 space-y-1 mt-2">
+                                            <li class="text-sm text-gray-700">${envData.airQuality.cities}</li>
+                                            <li class="text-sm text-gray-700">${envData.airQuality.impact}</li>
+                                            <li class="text-sm text-gray-700">${envData.airQuality.improvement}</li>
+                                        </ul>
+                                    </div>
+                                `;
+                                
+                                dataHtml += '</div>';
+                                
+                                response = {
+                                    text: dataHtml,
+                                    quickReplies: ['More environmental data', 'Environmental tips', 'Back to events']
+                                };
+                                break;
+                                
+                            case 'webpage':
+                                const webpage = externalData.data;
+                        response = {
+                                    text: `
+                                        <div class="space-y-3">
+                                            <h3 class="font-bold text-lg">${webpage.title}</h3>
+                                            <p class="text-gray-700">${webpage.description}</p>
+                                            <div class="mt-4">
+                                                <a href="${webpage.url}" target="_blank" class="inline-block bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-emerald-500 hover:to-sky-500 transition-all duration-300">
+                                                    Visit Website
+                                                </a>
+                                            </div>
+                                        </div>
+                                    `,
+                                    webpage: webpage.url,
+                                    quickReplies: ['Search for more information', 'Environmental tips', 'Back to events']
+                                };
+                                break;
+                                
+                            default:
+                                // Fall back to the regular event handling
+                                response = await processEventQuery(lowerMessage);
+                        }
+                    } else {
+                        // Process regular event queries
+                        response = await processEventQuery(lowerMessage);
+                    }
+                    
+                    // Remove loading indicator and show response
+                    removeLoading(loadingDiv);
+                    showMessage(response, 'bot');
+                } catch (error) {
+                    console.error('Error handling user message:', error);
+                    removeLoading(loadingDiv);
+                    showMessage({
+                        text: "I'm sorry, I encountered an error while processing your request. Please try again.",
+                        quickReplies: ['Find Events Near Me', 'How to Register', 'Contact Support']
+                    }, 'bot');
+                }
+            }
+
+            async function processEventQuery(lowerMessage) {
+                // Event-related queries
+                if (lowerMessage.includes('event') || lowerMessage.includes('find') || lowerMessage.includes('upcoming')) {
+                    // Check if user is asking about a specific location
+                    const locations = ['lpu', 'jalandhar', 'phagwara', 'ludhiana', 'delhi', 'shimla'];
+                    const locationMatch = locations.find(loc => lowerMessage.includes(loc));
+                    
+                    if (locationMatch) {
+                        // Filter events by location
+                        const filteredEvents = events.filter(event => 
+                            event.category === locationMatch || 
+                            event.location.toLowerCase().includes(locationMatch)
+                        );
+                        
+                        if (filteredEvents.length > 0) {
+                            let eventList = `<p>Here are the upcoming cleanup events in ${locationMatch.charAt(0).toUpperCase() + locationMatch.slice(1)}:</p><ul class="mt-2 space-y-2">`;
+                            
+                            filteredEvents.forEach(event => {
+                                eventList += `
+                                    <li class="flex items-start">
+                                        <i class="fas fa-calendar-check text-emerald-500 mt-1 mr-2"></i>
+                                        <div>
+                                            <strong>${event.name}</strong><br>
+                                            <span class="text-sm text-gray-600">
+                                                <i class="far fa-calendar mr-1"></i>${formatDate(event.date)} at ${event.time}<br>
+                                                <i class="fas fa-map-marker-alt mr-1"></i>${event.location}<br>
+                                                <i class="fas fa-users mr-1"></i>${event.volunteers.current}/${event.volunteers.max} volunteers
+                                            </span>
+                                        </div>
+                                    </li>
+                                `;
+                            });
+                            
+                            eventList += '</ul>';
+                            
+                            return {
+                                text: eventList,
+                                quickReplies: ['How do I register?', 'Tell me more about an event', 'Show all events']
+                            };
+                        } else {
+                            return {
+                                text: `I couldn't find any events in ${locationMatch}. Would you like to see events in other locations?`,
+                                quickReplies: ['Show all events', 'Events in LPU', 'Events in Jalandhar']
+                            };
+                        }
+                    } else {
+                        // Show all events grouped by location
+                        let response = {
+                            text: "Here are all our upcoming cleanup events:",
+                            quickReplies: ['Events in LPU', 'Events in Jalandhar', 'Events in Phagwara', 'Events in Ludhiana']
+                        };
+                        
+                        // Add event details to the response
+                        let eventDetails = '<div class="mt-4 space-y-4">';
+                        
+                        // Group events by category
+                        const categories = ['lpu', 'jalandhar', 'phagwara', 'ludhiana', 'outside'];
+                        categories.forEach(category => {
+                            const categoryEvents = events.filter(event => event.category === category);
+                            if (categoryEvents.length > 0) {
+                                const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+                                eventDetails += `
+                                    <div class="border-t border-gray-200 pt-3">
+                                        <h4 class="font-semibold text-gray-800">${categoryName}</h4>
+                                        <ul class="mt-2 space-y-2">
+                                `;
+                                
+                                categoryEvents.forEach(event => {
+                                    eventDetails += `
+                                        <li class="flex items-start">
+                                            <i class="fas fa-calendar-check text-emerald-500 mt-1 mr-2"></i>
+                                            <div>
+                                                <strong>${event.name}</strong><br>
+                                                <span class="text-sm text-gray-600">
+                                                    <i class="far fa-calendar mr-1"></i>${formatDate(event.date)} at ${event.time}<br>
+                                                    <i class="fas fa-map-marker-alt mr-1"></i>${event.location}
+                                                </span>
+                                            </div>
+                                        </li>
+                                    `;
+                                });
+                                
+                                eventDetails += '</ul></div>';
+                            }
+                        });
+                        
+                        eventDetails += '</div>';
+                        response.text += eventDetails;
+                        return response;
+                    }
+                } 
+                // Registration-related queries
+                else if (lowerMessage.includes('register') || lowerMessage.includes('join') || lowerMessage.includes('sign up')) {
+                    return {
+                            text: "Great to see your interest in volunteering! Here's how you can get started:",
+                            quickReplies: [
+                                "Fill registration form",
+                                "View requirements",
+                                "Contact support"
+                            ]
+                        };
+                } 
+                // Event details query
+                else if (lowerMessage.includes('tell me more') || lowerMessage.includes('details') || lowerMessage.includes('about an event')) {
+                    // Find the event mentioned in the message
+                    const eventNames = events.map(event => event.name.toLowerCase());
+                    const mentionedEvent = eventNames.find(name => lowerMessage.includes(name));
+                    
+                    if (mentionedEvent) {
+                        const event = events.find(e => e.name.toLowerCase() === mentionedEvent);
+                        return {
+                            text: `
+                                <div class="space-y-3">
+                                    <h3 class="font-bold text-lg">${event.name}</h3>
+                                    <p><i class="far fa-calendar mr-2"></i><strong>Date:</strong> ${formatDate(event.date)} at ${event.time}</p>
+                                    <p><i class="fas fa-map-marker-alt mr-2"></i><strong>Location:</strong> ${event.location}</p>
+                                    <p><i class="fas fa-users mr-2"></i><strong>Volunteers:</strong> ${event.volunteers.current}/${event.volunteers.max} (${Math.round((event.volunteers.current/event.volunteers.max)*100)}% filled)</p>
+                                    <p><i class="fas fa-info-circle mr-2"></i><strong>Description:</strong> ${event.description}</p>
+                                    <div class="mt-4">
+                                        <a href="auth.html" class="inline-block bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-emerald-500 hover:to-sky-500 transition-all duration-300">
+                                            Register for this event
+                                        </a>
+                                    </div>
+                                </div>
+                            `,
+                            quickReplies: ['Show all events', 'How do I register?', 'Contact support']
+                        };
+                    } else {
+                        return {
+                            text: "Which event would you like to know more about?",
+                            quickReplies: events.slice(0, 3).map(event => event.name)
+                        };
+                    }
+                }
+                // Contact support query
+                else if (lowerMessage.includes('contact') || lowerMessage.includes('support') || lowerMessage.includes('help')) {
+                    return {
+                        text: "You can contact our support team through the following channels:",
+                        quickReplies: [
+                            "Email support",
+                            "Call support",
+                            "Back to events"
+                        ]
+                    };
+                }
+                // Default response
+                else {
+                    return {
+                        text: "I'm here to help you with information about cleanup events, registration, and more. What would you like to know?",
+                            quickReplies: [
+                                "Find Events Near Me",
+                                "How to Register",
+                            "Environmental Tips"
+                            ]
+                        };
+                    }
+            }
+
+            // Handle form submission
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                if (message) {
+                    showMessage({ text: message }, 'user');
+                    chatInput.value = '';
+                    handleUserMessage(message);
+                }
+            });
+
+            // Handle quick action buttons
+            quickActions.forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.textContent.trim();
+                    showMessage({ text: action }, 'user');
+                    handleUserMessage(action);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

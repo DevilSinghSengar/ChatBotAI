@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanupCrew - Event Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+        }
+        .hover-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .stats-gradient {
+            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .map-controls {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .event-list {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            width: 300px;
+        }
+        .event-item {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .event-item:hover {
+            background: #f3f4f6;
+        }
+        .event-item.active {
+            background: #e0f2fe;
+        }
+        .custom-popup {
+            padding: 10px;
+        }
+        .custom-popup h3 {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #0f172a;
+        }
+        .custom-popup p {
+            margin: 5px 0;
+            color: #475569;
+        }
+        .custom-popup .volunteers {
+            color: #059669;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Navigation -->
+    <nav class="bg-white text-gray-800 shadow-sm fixed w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-leaf text-emerald-500 text-2xl"></i>
+                    <span class="text-xl font-bold">CleanupCrew</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="./index.html" class="hover:text-sky-600 font-medium">Home</a>
+                    <a href="./events.html" class="hover:text-sky-600 font-medium">Events</a>
+                    <a href="./map.html" class="text-sky-600 font-medium">Map</a>
+                    <a href="./auth.html" class="hover:text-sky-600 font-medium">Register</a>
+                    <a href="./chat.html" class="hover:text-sky-600 font-medium flex items-center">
+                        <i class="far fa-comment-dots mr-1"></i>
+                        Chat
+                    </a>
+                </div>
+                <a href="auth.html" class="bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-6 py-2 rounded-full hover:from-emerald-500 hover:to-sky-500 transition-all duration-300 font-medium">
+                    Join Now
+                </a>
+                <!-- Mobile menu button -->
+                <button class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+            <!-- Mobile menu -->
+            <div class="hidden md:hidden mt-4 pb-4">
+                <a href="index.html" class="block py-2 hover:text-sky-600">Home</a>
+                <a href="events.html" class="block py-2 hover:text-sky-600">Events</a>
+                <a href="map.html" class="block py-2 text-sky-600">Map</a>
+                <a href="auth.html" class="block py-2 hover:text-sky-600">Register</a>
+                <a href="chat.html" class="block py-2 hover:text-sky-600 flex items-center">
+                    <i class="far fa-comment-dots mr-1"></i>
+                    Chat
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 bg-gradient-to-r from-sky-500 to-emerald-500 text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Find Events Near You</h1>
+                <p class="text-xl text-white/90 mb-12">Explore cleanup events in your area and join our mission for a cleaner environment.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="auth.html" class="bg-white text-sky-600 px-8 py-4 rounded-full hover:bg-sky-50 transition-all duration-300 font-bold text-lg cursor-pointer">
+                        Become a Volunteer
+                    </a>
+                    <a href="events.html" class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-full hover:bg-white/10 transition-all duration-300 font-bold text-lg cursor-pointer">
+                        Browse Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-6">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Controls -->
+    <div class="map-controls">
+        <h3 class="font-bold text-gray-800 mb-3">Filter Events</h3>
+        <div class="space-y-2">
+            <button class="w-full px-4 py-2 rounded-full bg-sky-500 text-white font-medium hover:bg-sky-600 transition-colors" onclick="filterEvents('all')">All Events</button>
+            <button class="w-full px-4 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('lpu')">Near LPU</button>
+            <button class="w-full px-4 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('jalandhar')">Jalandhar</button>
+            <button class="w-full px-4 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('phagwara')">Phagwara</button>
+            <button class="w-full px-4 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('ludhiana')">Ludhiana</button>
+            <button class="w-full px-4 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors" onclick="filterEvents('outside')">Outside Punjab</button>
+        </div>
+    </div>
+
+    <!-- Event List -->
+    <div class="event-list">
+        <h3 class="font-bold text-gray-800 mb-3">Event List</h3>
+        <div id="event-list-container">
+            <!-- Events will be populated here -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- About -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-leaf text-emerald-500 text-2xl"></i>
+                        <span class="text-xl font-bold">CleanupCrew</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Join our community of volunteers and make a difference in creating cleaner, healthier spaces for everyone.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-3">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="events.html" class="text-gray-400 hover:text-white transition-colors">Events</a></li>
+                        <li><a href="map.html" class="text-gray-400 hover:text-white transition-colors">Event Map</a></li>
+                        <li><a href="auth.html" class="text-gray-400 hover:text-white transition-colors">Volunteer Registration</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Us -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-map-marker-alt text-emerald-400 mt-1"></i>
+                            <span class="text-gray-400">Lovely Professional University, Phagwara,144411, Punjab</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-phone text-emerald-400"></i>
+                            <span class="text-gray-400">9933221144</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-envelope text-emerald-400"></i>
+                            <span class="text-gray-400">contact@cleanupcrew.com</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Stay Updated -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Stay Updated</h3>
+                    <p class="text-gray-400 mb-4">Subscribe to our newsletter for the latest events and updates.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+                        <button class="bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-4 py-2 rounded-r-lg hover:from-emerald-500 hover:to-sky-500 transition-all duration-300">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 CleanupCrew. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        let map;
+        let markers = [];
+        let currentCategory = 'all';
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([31.2460, 75.7015], 8);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add markers for all events
+            addMarkers(eventLocations);
+            updateEventList(eventLocations);
+        }
+
+        // Add markers to map
+        function addMarkers(locations) {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            locations.forEach(location => {
+                const marker = L.marker([location.position.lat, location.position.lng])
+                    .addTo(map)
+                    .bindPopup(`
+                        <div class="custom-popup">
+                            <h3>${location.title}</h3>
+                            <p><i class="far fa-calendar mr-2"></i>${location.date}</p>
+                            <p><i class="fas fa-users mr-2"></i><span class="volunteers">${location.volunteers}</span></p>
+                            <p><i class="fas fa-map-marker-alt mr-2"></i>${location.address}</p>
+                            <a href="auth.html" class="text-sky-500 hover:text-sky-600 font-medium block mt-2">
+                                Join Event →
+                            </a>
+                        </div>
+                    `);
+
+                markers.push(marker);
+            });
+        }
+
+        // Update event list
+        function updateEventList(locations) {
+            const container = document.getElementById('event-list-container');
+            container.innerHTML = '';
+
+            locations.forEach(location => {
+                const div = document.createElement('div');
+                div.className = 'event-item';
+                div.innerHTML = `
+                    <h4 class="font-medium text-gray-800">${location.title}</h4>
+                    <p class="text-sm text-gray-600"><i class="far fa-calendar mr-2"></i>${location.date}</p>
+                    <p class="text-sm text-emerald-600"><i class="fas fa-users mr-2"></i>${location.volunteers}</p>
+                `;
+
+                div.addEventListener('click', () => {
+                    map.setView([location.position.lat, location.position.lng], 13);
+                    markers.find(m => 
+                        m.getLatLng().lat === location.position.lat && 
+                        m.getLatLng().lng === location.position.lng
+                    ).openPopup();
+                });
+
+                container.appendChild(div);
+            });
+        }
+
+        // Filter events
+        function filterEvents(category) {
+            currentCategory = category;
+            const filteredLocations = category === 'all' 
+                ? eventLocations 
+                : eventLocations.filter(loc => {
+                    const matchingEvent = events.find(e => e.name === loc.title);
+                    return matchingEvent && matchingEvent.category === category;
+                });
+
+            addMarkers(filteredLocations);
+            updateEventList(filteredLocations);
+
+            // Update button styles
+            document.querySelectorAll('.map-controls button').forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(category)) {
+                    btn.classList.remove('bg-white', 'text-gray-700');
+                    btn.classList.add('bg-sky-500', 'text-white');
+                } else {
+                    btn.classList.remove('bg-sky-500', 'text-white');
+                    btn.classList.add('bg-white', 'text-gray-700');
+                }
+            });
+
+            // Fit bounds to show all filtered markers
+            if (filteredLocations.length > 0) {
+                const bounds = L.latLngBounds(filteredLocations.map(loc => [loc.position.lat, loc.position.lng]));
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+
+        // Initialize map when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html> 

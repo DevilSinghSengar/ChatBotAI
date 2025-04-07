@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanupCrew</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+        }
+        .hover-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .stats-gradient {
+            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+        #map {
+            height: 400px; /* or whatever size fits your design */
+            width: 70%;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center; /* Horizontal centering */
+            align-items: center;     /* Vertical centering */
+            margin-left: 15%;
+            margin-top: 10%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+          }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Navigation -->
+    <nav class="bg-white text-gray-800 shadow-sm fixed w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-leaf text-emerald-500 text-2xl"></i>
+                    <span class="text-xl font-bold">CleanupCrew</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="./index.html" class="hover:text-sky-600 font-medium">Home</a>
+                    <a href="./events.html" class="hover:text-sky-600 font-medium">Events</a>
+                    <a href="./map.html" class="hover:text-sky-600 font-medium">Map</a>
+                    <a href="#register" class="hover:text-sky-600 font-medium">Register</a>
+                    <a href="./chat.html" class="hover:text-sky-600 font-medium flex items-center">
+                        <i class="far fa-comment-dots mr-1"></i>
+                        Chat
+                    </a>
+                </div>
+                <a href="./auth.html" class="bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-6 py-2 rounded-full hover:from-emerald-500 hover:to-sky-500 transition-all duration-300 font-medium">
+                    Join Now
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-32 pb-20 bg-gradient-to-r from-sky-500 to-emerald-500 text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Join the Movement for a Cleaner Community</h1>
+                <p class="text-xl text-white/90 mb-12">Volunteer for local cleanup events and make a difference in your community.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="./auth.html" class="bg-white text-sky-600 px-8 py-4 rounded-full hover:bg-sky-50 transition-all duration-300 font-bold text-lg cursor-pointer">
+                        Become a Volunteer
+                    </a>
+                    <a href="#events" class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-full hover:bg-white/10 transition-all duration-300 font-bold text-lg cursor-pointer">
+                        Browse Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <!-- Events Card -->
+                <div class="text-center p-8 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-blue-100">
+                    <div class="inline-block p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-4 shadow-md">
+                        <i class="fas fa-calendar-check text-4xl text-white"></i>
+                    </div>
+                    <div class="text-4xl font-bold text-blue-600 mb-2 flex items-center justify-center gap-2">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">150</span>
+                        <span class="text-blue-600">+</span>
+                    </div>
+                    <div class="text-blue-700 font-medium">Events Completed</div>
+                </div>
+
+                <!-- Volunteers Card -->
+                <div class="text-center p-8 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-emerald-100">
+                    <div class="inline-block p-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full mb-4 shadow-md">
+                        <i class="fas fa-users text-4xl text-white"></i>
+                    </div>
+                    <div class="text-4xl font-bold text-emerald-600 mb-2 flex items-center justify-center gap-2">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-emerald-800">5,000</span>
+                        <span class="text-emerald-600">+</span>
+                    </div>
+                    <div class="text-emerald-700 font-medium">Volunteers Joined</div>
+                </div>
+
+                <!-- Waste Card -->
+                <div class="text-center p-8 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-orange-100">
+                    <div class="inline-block p-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full mb-4 shadow-md">
+                        <i class="fas fa-dumpster text-4xl text-white"></i>
+                    </div>
+                    <div class="text-4xl font-bold text-orange-600 mb-2 flex items-center justify-center gap-2">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-orange-800">25</span>
+                        <span class="text-orange-600">Tons</span>
+                    </div>
+                    <div class="text-orange-700 font-medium">Waste Collected</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-4 text-gray-900">Upcoming Events</h2>
+            <p class="text-gray-600 text-center text-lg mb-16 max-w-2xl mx-auto">Join one of our upcoming cleanup events and help make our community cleaner and healthier.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Event Card 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="https://images.tribuneindia.com/cms/gall_content/2015/3/2015_3$largeimg03_Mar_2015_014527863.jpg" 
+                         alt="Model Town Park Cleanup" 
+                         class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center text-sky-500 mb-4">
+                            <i class="far fa-calendar text-lg mr-2"></i>
+                            <span>2024-03-15</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Model Town Park Cleanup</h3>
+                        <div class="flex items-center text-gray-600 mb-4">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>Model Town Park, Jalandhar</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-green-600 font-medium">32/50 volunteers</span>
+                            <a href="#" class="text-sky-500 hover:text-sky-600 font-medium transition-colors">View Details</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="https://s7ap1.scene7.com/is/image/incredibleindia/burlton-park-jalandhar-punjab-attr-hero?qlt=82&ts=1726661358908" 
+                         alt="Burlton Park Cleanup" 
+                         class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center text-sky-500 mb-4">
+                            <i class="far fa-calendar text-lg mr-2"></i>
+                            <span>2024-03-20</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Burlton Park Cleanup Drive</h3>
+                        <div class="flex items-center text-gray-600 mb-4">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>Burlton Park, Jalandhar</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-green-600 font-medium">15/30 volunteers</span>
+                            <a href="#" class="text-sky-500 hover:text-sky-600 font-medium transition-colors">View Details</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="https://travelsetu.com/apps/uploads/new_destinations_photos/destination/2024/01/08/1a7bc4fbbb8faffe022690c13f718ec8_1000x1000.jpeg" 
+                         alt="Nikku Park Restoration" 
+                         class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center text-sky-500 mb-4">
+                            <i class="far fa-calendar text-lg mr-2"></i>
+                            <span>2024-03-25</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Nikku Park Restoration</h3>
+                        <div class="flex items-center text-gray-600 mb-4">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>Nikku Park, Jalandhar</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-green-600 font-medium">22/40 volunteers</span>
+                            <a href="#" class="text-sky-500 hover:text-sky-600 font-medium transition-colors">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="./events.html" class="inline-flex items-center text-sky-500 hover:text-sky-600 font-bold text-lg group">
+                    View All Events
+                    <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-4 text-gray-900">How It Works</h2>
+            <p class="text-gray-600 text-center text-lg mb-16 max-w-2xl mx-auto">Getting involved is easy. Follow these simple steps to join a cleanup event.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl mx-auto">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-gradient-to-r from-sky-400 to-sky-500 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-6">1</div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-900">Browse Events</h3>
+                    <p class="text-gray-600">Find cleanup events in your area by browsing our events page or using the interactive map.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-6">2</div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-900">Register</h3>
+                    <p class="text-gray-600">Sign up as a volunteer for the events that fit your schedule and interests.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-6">3</div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-900">Make an Impact</h3>
+                    <p class="text-gray-600">Show up, clean up, and be part of the solution for a cleaner, healthier community.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="py-20 bg-gradient-to-r from-sky-500 to-emerald-500">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold text-white mb-6">Ready to Make a Difference?</h2>
+            <p class="text-white text-xl mb-12 max-w-2xl mx-auto">Join our community of volunteers today and help create cleaner, healthier spaces for everyone.</p>
+            <a href="#register" class="inline-block bg-white text-sky-600 px-8 py-4 rounded-full hover:bg-sky-50 transition-all duration-300 font-bold text-lg">Register as a Volunteer</a>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section id="map" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-16 text-gray-800">Find Events Near You</h2>
+            <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div id="map-container" class="h-96 w-full"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Register Section -->
+    <section id="register" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-16 text-gray-800">Register as a Volunteer</h2>
+            <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+                <form id="volunteer-form" class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Full Name</label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Email</label>
+                        <input type="email" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Phone Number</label>
+                        <input type="tel" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent" required>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-sky-500 to-emerald-500 text-white py-4 rounded-lg hover:from-emerald-500 hover:to-sky-500 transition-all duration-300 font-bold text-lg">Register Now</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <!-- Brand Section -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-leaf text-emerald-400 text-2xl"></i>
+                        <span class="text-xl font-bold">CleanupCrew</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">Join us in making a difference. Together we can create cleaner, healthier communities one cleanup at a time.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Event Map</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Volunteer Registration</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Us -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-map-marker-alt text-emerald-400 mt-1"></i>
+                            <span class="text-gray-400">Lovely Professional University, Phagwara,144411, Punjab</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-phone text-emerald-400"></i>
+                            <span class="text-gray-400">9933221144</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-envelope text-emerald-400"></i>
+                            <span class="text-gray-400">contact@cleanupcrew.com</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Stay Updated -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Stay Updated</h3>
+                    <p class="text-gray-400 mb-4">Subscribe to our newsletter for the latest events and news.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="flex-1 px-4 py-2 bg-gray-800 text-white rounded-l-lg focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                        <button type="submit" class="px-6 py-2 bg-emerald-500 text-white rounded-r-lg hover:bg-emerald-600 transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center">
+                <p class="text-gray-400">&copy; 2025 CleanupCrew. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Widget -->
+    <div id="chat-widget" class="fixed bottom-4 right-4 z-50">
+        <!-- Chat Button -->
+        <button id="chat-toggle" class="bg-gradient-to-r from-sky-500 to-emerald-500 text-white p-4 rounded-full shadow-lg hover:from-emerald-500 hover:to-sky-500 transition-all duration-300">
+            <i class="fas fa-comments text-2xl"></i>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="hidden fixed bottom-20 right-4 w-[380px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+            <!-- Chat Header -->
+            <div class="bg-gradient-to-r from-sky-500 to-emerald-500 p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white rounded-full overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop" alt="CleanupCrew Assistant" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-white font-semibold">Chat with CleanupCrew</h3>
+                            <p class="text-white/80 text-sm">We typically reply in few minutes</p>
+                        </div>
+                    </div>
+                    <button id="chat-close" class="text-white hover:text-white/80 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="h-96 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                <!-- Messages will be added here -->
+            </div>
+
+            <!-- Quick Actions -->
+            <div id="quick-actions" class="px-4 py-3 border-t border-gray-100 bg-white">
+                <div class="flex flex-wrap gap-2">
+                    <button class="quick-action px-4 py-2 bg-sky-50 text-sky-600 rounded-full text-sm hover:bg-sky-100 transition-colors font-medium">
+                        Find Events Near Me
+                    </button>
+                    <button class="quick-action px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-sm hover:bg-emerald-100 transition-colors font-medium">
+                        How to Register
+                    </button>
+                    <button class="quick-action px-4 py-2 bg-orange-50 text-orange-600 rounded-full text-sm hover:bg-orange-100 transition-colors font-medium">
+                        Contact Support
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="p-4 border-t border-gray-100 bg-white">
+                <form id="chat-form" class="flex items-end space-x-2">
+                    <div class="flex-1 relative">
+                        <input type="text" id="chat-input" 
+                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent" 
+                               placeholder="Type your message...">
+                        <div class="absolute bottom-3 right-2 flex space-x-2">
+                            <button type="button" class="text-gray-400 hover:text-sky-500 transition-colors">
+                                <i class="far fa-smile"></i>
+                            </button>
+                            <button type="button" class="text-gray-400 hover:text-sky-500 transition-colors">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-gradient-to-r from-sky-500 to-emerald-500 text-white p-3 rounded-full hover:from-emerald-500 hover:to-sky-500 transition-all duration-300">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Response Rating -->
+            <div id="response-rating" class="hidden px-4 py-3 bg-gray-50 border-t border-gray-100">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Was this helpful?</span>
+                    <div class="flex space-x-3">
+                        <button class="text-gray-400 hover:text-sky-500 transition-colors">
+                            <i class="far fa-thumbs-up"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 transition-colors">
+                            <i class="far fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <!-- Google Maps Script -->
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script> -->
+    <script>
+        const map = L.map('map').setView([31.3260, 75.5762], 13);
+      
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+      
+        const marker = L.marker([31.3260, 75.5762]).addTo(map);
+        marker.bindPopup("<b>Jalandhar</b><br>Starting point.").openPopup();
+    </script>
+      
+    <script src="chatbot.js"></script>
+</body>
+</html> 
