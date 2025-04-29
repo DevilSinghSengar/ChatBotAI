@@ -264,11 +264,11 @@ function displayEvents(filteredEvents = events) {
                     <div class="pt-4 flex items-center justify-between">
                         <a href="./auth.html" 
                            class="inline-flex items-center justify-center px-6 py-2 bg-gradient-to-r from-sky-500 to-emerald-500 text-white rounded-full hover:from-emerald-500 hover:to-sky-500 transition-all duration-300 font-medium">
-                            Join Event
+                        Join Event
                         </a>
                         <button class="text-gray-500 hover:text-sky-600 transition-colors">
                             <i class="far fa-heart text-xl"></i>
-                        </button>
+                    </button>
                     </div>
                 </div>
             </div>

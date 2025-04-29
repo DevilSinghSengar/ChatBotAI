@@ -1,5 +1,76 @@
 import { chatbotTrainingData, initializeChatbot, findResponse } from './chatbot-training.js';
 
+// API Configuration
+const apiConfig = {
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+    apiKey: 'AIzaSyAGA_QL6bRo6HBlw4EIIRHXMDkMpTNwEKM', // Gemini API key
+    model: 'gemini-1.5-flash',
+    maxTokens: 1000
+};
+
+// Function to call Gemini API
+async function callChatAPI(query) {
+    try {
+        const response = await fetch(`${apiConfig.endpoint}?key=${apiConfig.apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `You are an AI assistant for CleanupCrew, an environmental organization. 
+                        Provide helpful, accurate, and concise responses about environmental topics, 
+                        cleanup events, and sustainability. Keep responses under 200 words.
+                        
+                        User query: ${query}`
+                    }]
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('API request failed');
+        }
+
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+    } catch (error) {
+        console.error('Error calling Gemini API:', error);
+        return "I'm having trouble connecting to the AI service right now. Please try again later.";
+    }
+}
+
+// Function to get AI response
+async function getAIResponse(query) {
+    try {
+        // Show loading indicator
+        const loadingDiv = showLoading();
+        
+        // Call the Gemini API
+        const response = await callChatAPI(query);
+        
+        // Remove loading indicator
+        removeLoading(loadingDiv);
+        
+        // Format the response
+        return {
+            text: `
+                <div class="space-y-3">
+                    <p class="text-gray-700">${response}</p>
+                </div>
+            `,
+            quickReplies: ['Tell me more', 'How can I help?', 'What events are coming up?']
+        };
+    } catch (error) {
+        console.error('Error getting AI response:', error);
+        return {
+            text: "I'm having trouble processing your request with AI. Let me try a different approach.",
+            quickReplies: ['Try again', 'Find Events Near Me', 'Environmental Tips']
+        };
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize chatbot
     initializeChatbot();
@@ -36,22 +107,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle form submission
-    chatForm.addEventListener('submit', (e) => {
+    chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const message = chatInput.value.trim();
         if (message) {
             showMessage({ text: message }, 'user');
-            handleUserMessage(message);
+            await handleUserMessage(message);
             chatInput.value = '';
         }
     });
 
     // Quick action buttons
     quickActions.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const message = button.textContent.trim();
             showMessage({ text: message }, 'user');
-            handleUserMessage(message);
+            await handleUserMessage(message);
         });
     });
 
@@ -107,10 +178,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add click handlers for quick replies
         if (type === 'bot' && message.quickReplies) {
             messageDiv.querySelectorAll('.quick-reply').forEach(button => {
-                button.addEventListener('click', () => {
+                button.addEventListener('click', async () => {
                     const reply = button.textContent.trim();
                     showMessage({ text: reply }, 'user');
-                    handleUserMessage(reply);
+                    await handleUserMessage(reply);
                 });
             });
         }
@@ -131,28 +202,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle user messages
-    function handleUserMessage(message) {
+    async function handleUserMessage(message) {
         // Show typing indicator
         showTypingIndicator();
 
-        // Get response from chatbot
-        setTimeout(() => {
-            removeTypingIndicator();
-            const response = findResponse(message);
+        try {
+            // Get response from Gemini API
+            const response = await getAIResponse(message);
             
-            // Determine quick replies based on the context
-            let quickReplies = [];
-            if (response.includes("upcoming cleanup events")) {
-                quickReplies = ["View all events", "Search by location", "Filter by date"];
-            } else if (response.includes("registration")) {
-                quickReplies = ["Start registration", "View requirements", "Contact support"];
-            }
-
+            // Remove typing indicator
+            removeTypingIndicator();
+            
+            // Show the response
             showMessage({
-                text: response,
-                quickReplies: quickReplies
+                text: response.text,
+                quickReplies: response.quickReplies
             }, 'bot');
-        }, 1000 + Math.random() * 500); // Random delay between 1-1.5 seconds
+        } catch (error) {
+            console.error('Error handling user message:', error);
+            removeTypingIndicator();
+            showMessage({
+                text: "I'm having trouble processing your request. Please try again later.",
+                quickReplies: ['Try again', 'Contact Support']
+            }, 'bot');
+        }
     }
 
     // Show typing indicator

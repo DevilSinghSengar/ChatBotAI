@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanupCrew AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-gradient {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+        }
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .message-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+        }
+        .message-enter {
+            animation: messageEnter 0.3s ease-out forwards;
+        }
+        @keyframes messageEnter {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .typing-indicator span {
+            animation: bounce 1.4s infinite;
+        }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-sky-50 to-emerald-50 min-h-screen">
+    <!-- Main Container -->
+    <div class="max-w-4xl mx-auto p-4">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-sky-600 mb-2">CleanupCrew AI Assistant</h1>
+            <p class="text-emerald-600">Your environmental guide to a cleaner world</p>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Chat Header -->
+            <div class="card-gradient p-6 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-leaf text-sky-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold text-white">Environmental Assistant</h2>
+                        <p class="text-sky-100">Ask me anything about environmental topics</p>
+                    </div>
+                </div>
+                <button id="chat-toggle" class="text-white hover:text-sky-100 transition-colors">
+                    <i class="fas fa-ellipsis-v text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="h-[500px] overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-sky-50 to-emerald-50">
+                <!-- Messages will be added here -->
+            </div>
+
+            <!-- Chat Input -->
+            <div class="border-t border-sky-100 p-4 bg-white">
+                <form id="chat-form" class="flex space-x-3">
+                    <div class="flex-1 relative">
+                        <input type="text" id="chat-input" 
+                            class="w-full border-2 border-sky-100 rounded-full px-6 py-3 focus:outline-none input-focus text-sky-900 placeholder-sky-300"
+                            placeholder="Ask about environmental topics...">
+                        <button type="submit" 
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 card-gradient text-white p-2 rounded-full hover-card transition-all duration-300">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <button class="quick-action card-gradient text-white p-6 rounded-xl hover-card transition-all duration-300">
+                <i class="fas fa-calendar-alt text-2xl mb-3"></i>
+                <h3 class="font-semibold">Upcoming Events</h3>
+                <p class="text-sky-100 text-sm">Find cleanup events near you</p>
+            </button>
+            <button class="quick-action card-gradient text-white p-6 rounded-xl hover-card transition-all duration-300">
+                <i class="fas fa-recycle text-2xl mb-3"></i>
+                <h3 class="font-semibold">Recycling Tips</h3>
+                <p class="text-sky-100 text-sm">Learn proper recycling methods</p>
+            </button>
+            <button class="quick-action card-gradient text-white p-6 rounded-xl hover-card transition-all duration-300">
+                <i class="fas fa-hands-helping text-2xl mb-3"></i>
+                <h3 class="font-semibold">Volunteer</h3>
+                <p class="text-sky-100 text-sm">Join our cleanup efforts</p>
+            </button>
+        </div>
+    </div>
+
+    <script src="chat2.js"></script>
+</body>
+</html> 

@@ -343,6 +343,82 @@ async function getAIResponse(query) {
     }
 }
 
+// API Configuration
+const apiConfig = {
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+    apiKey: 'AIzaSyAGA_QL6bRo6HBlw4EIIRHXMDkMpTNwEKM', // Gemini API key
+    model: 'gemini-1.5-flash',
+    maxTokens: 1000
+};
+
+// Function to call Gemini API
+async function callChatAPI(query) {
+    try {
+        const response = await fetch(`${apiConfig.endpoint}?key=${apiConfig.apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `You are an AI assistant for CleanupCrew, an environmental organization. 
+                        Provide helpful, accurate, and concise responses about environmental topics, 
+                        cleanup events, and sustainability. Keep responses under 200 words.
+                        
+                        User query: ${query}`
+                    }]
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('API request failed');
+        }
+
+        const data = await response.json();
+        
+        // Extract the response text from Gemini's response format
+        const responseText = data.candidates[0].content.parts[0].text;
+        
+        // Generate quick replies based on the response
+        const quickReplies = generateQuickReplies(responseText);
+        
+        return {
+            text: responseText,
+            quickReplies: quickReplies
+        };
+    } catch (error) {
+        console.error('Error calling Gemini API:', error);
+        // Fallback to local response if API fails
+        return {
+            text: getAIResponse(query),
+            quickReplies: ['Tell me more', 'How can I help?', 'What events are coming up?']
+        };
+    }
+}
+
+// Function to generate quick replies based on response content
+function generateQuickReplies(responseText) {
+    // Default quick replies
+    let quickReplies = ['Tell me more', 'Ask another question', 'Find Events'];
+    
+    // Check for keywords in the response to suggest relevant follow-up questions
+    if (responseText.toLowerCase().includes('climate') || responseText.toLowerCase().includes('weather')) {
+        quickReplies = ['Tell me about climate change', 'How does climate change affect the environment?', 'What can I do about climate change?'];
+    } else if (responseText.toLowerCase().includes('pollution') || responseText.toLowerCase().includes('waste')) {
+        quickReplies = ['How does pollution affect health?', 'What are the main types of pollution?', 'How can I reduce my waste?'];
+    } else if (responseText.toLowerCase().includes('recycling') || responseText.toLowerCase().includes('recycle')) {
+        quickReplies = ['What can I recycle?', 'How to recycle properly', 'Find recycling centers'];
+    } else if (responseText.toLowerCase().includes('event') || responseText.toLowerCase().includes('cleanup')) {
+        quickReplies = ['Show upcoming events', 'How to register for an event', 'What should I bring to an event?'];
+    } else if (responseText.toLowerCase().includes('volunteer') || responseText.toLowerCase().includes('help')) {
+        quickReplies = ['How can I volunteer?', 'What are the benefits of volunteering?', 'Find volunteer opportunities'];
+    }
+    
+    return quickReplies;
+}
+
 // Function to fetch data from external APIs
 async function fetchExternalData(query) {
     try {
@@ -530,48 +606,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatInput = document.getElementById('chat-input');
     const quickActions = document.querySelectorAll('.quick-action');
     const responseRating = document.getElementById('response-rating');
+    const apiToggle = document.getElementById('api-toggle');
 
     // Welcome message
     const welcomeMessage = {
         text: `
             <div class="space-y-3">
-                <p class="text-gray-700">👋 Welcome to CleanupCrew Chat! I'm here to help you with:</p>
+                <p class="text-gray-700">👋 Welcome to CleanupCrew AI Assistant! I'm here to help you with:</p>
                 <ul class="mt-2 space-y-1 text-gray-700">
-                    <li>• Finding cleanup events in your area</li>
-                    <li>• Registration process</li>
-                    <li>• General inquiries</li>
-                    <li>• Environmental information</li>
-                    <li>• Real-time weather data</li>
-                    <li>• Latest environmental news</li>
-                    <li>• Environmental statistics and facts</li>
+                    <li>🌍 Environmental Information</li>
+                    <li>📅 Event Details</li>
+                    <li>🤝 Volunteering Opportunities</li>
+                    <li>💡 Sustainability Tips</li>
+                    <li>📊 Environmental Statistics</li>
                 </ul>
-                <p class="mt-2 text-gray-700">I can access the internet to find information for you. Try asking me about:</p>
+                <p class="mt-2 text-gray-700">You can ask me specific questions like:</p>
                 <ul class="mt-2 space-y-1 text-gray-700">
-                    <li>• "What's the weather in Jalandhar?"</li>
-                    <li>• "Show me environmental news"</li>
-                    <li>• "Find information about plastic pollution"</li>
-                    <li>• "Environmental statistics"</li>
+                    <li>• "What is CleanupCrew's mission?"</li>
+                    <li>• "Tell me about upcoming cleanup events"</li>
+                    <li>• "How can I volunteer?"</li>
+                    <li>• "What are some recycling tips?"</li>
+                    <li>• "How does climate change affect our community?"</li>
                 </ul>
-                <p class="mt-2 text-gray-700">I'm powered by AI to provide intelligent responses. Try asking me:</p>
-                <ul class="mt-2 space-y-1 text-gray-700">
-                    <li>• "Tell me about climate change"</li>
-                    <li>• "How can I help the environment?"</li>
-                    <li>• "What are the benefits of recycling?"</li>
-                </ul>
-                <p class="mt-2 text-gray-700">You can also ask me specific questions about CleanupCrew:</p>
-                <ul class="mt-2 space-y-1 text-gray-700">
-                    <li>• "What is CleanupCrew?"</li>
-                    <li>• "How do I register for an event?"</li>
-                    <li>• "What should I bring to a cleanup event?"</li>
-                    <li>• "How does plastic pollution affect marine life?"</li>
-                </ul>
+                <p class="mt-2 text-gray-700">I'm powered by Google's Gemini AI to provide you with accurate and helpful responses!</p>
+                <p class="mt-2 text-gray-700">You can toggle between local responses and API-powered responses using the switch below.</p>
             </div>
         `,
         quickReplies: [
-            "Find Events Near Me",
-            "How to Register",
-            "Ask AI",
-            "Contact Support"
+            "Tell me about CleanupCrew",
+            "Upcoming events",
+            "How to volunteer",
+            "Environmental tips"
         ]
     };
 
@@ -737,8 +802,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 message.toLowerCase().includes('what are') || 
                 message.toLowerCase().includes('explain')) {
                 
-                // Get AI response
-                const aiResponse = await getAIResponse(message);
+                // Check if API toggle is enabled
+                const useAPI = apiToggle && apiToggle.checked;
+                
+                // Get AI response from API or local function
+                let aiResponse;
+                if (useAPI) {
+                    aiResponse = await callChatAPI(message);
+                } else {
+                    aiResponse = await getAIResponse(message);
+                }
+                
                 removeLoading(loadingDiv);
                 showMessage(aiResponse, 'bot');
                 return;

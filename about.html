@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - CleanupCrew Team</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-gradient {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+        }
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border: 4px solid #0ea5e9;
+            transition: all 0.3s ease;
+        }
+        .hover-card:hover .profile-image {
+            border-color: #10b981;
+            transform: scale(1.05);
+        }
+        .social-icon {
+            transition: all 0.3s ease;
+        }
+        .social-icon:hover {
+            transform: translateY(-3px);
+            color: #0ea5e9;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-sky-50 to-emerald-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center">
+                        <i class="fas fa-leaf text-sky-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-sky-600">CleanupCrew</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-sky-600 hover:text-emerald-600 transition-colors">Home</a>
+                    <a href="events.html" class="text-sky-600 hover:text-emerald-600 transition-colors">Events</a>
+                    <a href="map.html" class="text-sky-600 hover:text-emerald-600 transition-colors">Map</a>
+                    <a href="register.html" class="text-sky-600 hover:text-emerald-600 transition-colors">Register</a>
+                    <a href="chat2.html" class="text-sky-600 hover:text-emerald-600 transition-colors">Chat</a>
+                    <a href="about.html" class="text-emerald-600 font-semibold">Developers</a>
+                </div>
+                <a href="register.html" class="card-gradient text-white px-6 py-2 rounded-full hover-card transition-all duration-300">
+                    Join Now
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="card-gradient text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Meet Our Team</h1>
+            <p class="text-xl text-sky-100 max-w-3xl mx-auto">
+                We are a passionate group of developers dedicated to creating a cleaner, greener world through technology.
+            </p>
+        </div>
+    </header>
+
+    <!-- Team Section -->
+    <section class="max-w-7xl mx-auto px-4 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Piyush Singh -->
+            <div class="bg-white rounded-xl shadow-lg p-6 hover-card transition-all duration-300">
+                <div class="flex flex-col items-center text-center">
+                    <img src="./images/WhatsApp Image 2025-04-17 at 11.22.24_08d19e86.jpg" 
+                         alt="Piyush Singh" 
+                         class="profile-image rounded-full mb-4">
+                    <h3 class="text-xl font-bold text-sky-600 mb-2">Piyush Singh</h3>
+                    <p class="text-emerald-600 font-semibold mb-2">12310729</p>
+                    <p class="text-gray-600 mb-4">Passionate about creating sustainable solutions through technology.</p>
+                    <div class="flex space-x-4">
+                        <a href="mailto:piyushsenger205@gmail.com" class="social-icon text-gray-400 hover:text-sky-600">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </a>
+                        <a href="tel:+919936693329" class="social-icon text-gray-400 hover:text-sky-600">
+                            <i class="fas fa-phone text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arman Mev -->
+            <div class="bg-white rounded-xl shadow-lg p-6 hover-card transition-all duration-300">
+                <div class="flex flex-col items-center text-center">
+                    <img src="./images/WhatsApp Image 2025-04-23 at 13.45.18_672e0cee.jpg" 
+                         alt="Arman Mev" 
+                         class="profile-image rounded-full mb-4">
+                    <h3 class="text-xl font-bold text-sky-600 mb-2">Arman Mev</h3>
+                    <p class="text-emerald-600 font-semibold mb-2">12306968</p>
+                    <p class="text-gray-600 mb-4">Creating beautiful and intuitive interfaces for environmental solutions.</p>
+                    <div class="flex space-x-4">
+                        <a href="mailto:armanmev265@gmail.com" class="social-icon text-gray-400 hover:text-sky-600">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </a>
+                        <a href="tel:+919509555621" class="social-icon text-gray-400 hover:text-sky-600">
+                            <i class="fas fa-phone text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ankita -->
+            <div class="bg-white rounded-xl shadow-lg p-6 hover-card transition-all duration-300">
+                <div class="flex flex-col items-center text-center">
+                    <img src="https://png.pngtree.com/png-vector/20191116/ourmid/pngtree-business-office-girl-avatar-icon-vector-download-png-image_1991055.jpg" 
+                         alt="Ankita" 
+                         class="profile-image rounded-full mb-4">
+                    <h3 class="text-xl font-bold text-sky-600 mb-2">Ankita</h3>
+                    <p class="text-emerald-600 font-semibold mb-2">12321723</p>
+                    <p class="text-gray-600 mb-4">Building robust and scalable systems for environmental data management.</p>
+                    <div class="flex space-x-4">
+                        <a href="mailto:ankitapoonia1506@gmail.com" class="social-icon text-gray-400 hover:text-sky-600">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </a>
+                        <a href="tel:+91" class="social-icon text-gray-400 hover:text-sky-600">
+                            <i class="fas fa-phone text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="card-gradient text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2024 CleanupCrew. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 
